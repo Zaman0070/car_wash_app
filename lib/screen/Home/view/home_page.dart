@@ -1,21 +1,82 @@
 import 'package:brush/constant/app_image.dart';
-import 'package:brush/screen/Home/new_order.dart';
+import 'package:brush/screen/Home/view/add_new_address.dart';
+import 'package:brush/screen/Home/view/new_order.dart';
 import 'package:brush/screen/gifts/gifts.dart';
 import 'package:brush/screen/offer/offer.dart';
 import 'package:brush/screen/Home/widget/home_button.dart';
 import 'package:brush/screen/Home/widget/home_dialoge.dart';
 import 'package:brush/screen/Home/widget/home_wallet_box.dart';
 import 'package:brush/screen/Home/widget/type_box.dart';
+import 'package:brush/services/firebase_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 // ignore: must_be_immutable
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? currentAddress;
+  String? latitude;
+  String? longitude;
+  Position? currentPosition;
+  FirebaseServices firebaseServices = FirebaseServices();
   int index = 0;
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() {
+        currentPosition = position;
+        latitude = currentPosition!.latitude.toString();
+        longitude = currentPosition!.longitude.toString();
+        currentAddress = '${position.latitude},${position.longitude}';
+      });
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +128,15 @@ class HomePage extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             HomeWalletBox(
                 address: () {
-                  address(context, () {
-                    // add another site
-                  }, () {
-                    //choose
-                  }, index);
+                  address(
+                      context: context,
+                      address: () {
+                        Get.to(() => const AddNewAddress());
+                      },
+                      choose: () {
+                        print('g');
+                      },
+                      index: index);
                 },
                 walletBalance: '0.0'),
             SizedBox(
@@ -120,7 +185,11 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  address(context, Function() address, Function() choose, int index) {
+  address(
+      {context,
+      required Function() address,
+      required Function() choose,
+      required int index}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

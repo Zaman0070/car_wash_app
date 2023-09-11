@@ -21,6 +21,7 @@ class AppImage {
   static const String tiktok = 'assets/icons/tiktok.png';
   static const String sanpchat = 'assets/icons/snapchat.png';
   static const String insta = 'assets/icons/instagram.png';
+  static const String location = 'assets/icons/location.png';
 }
 
 Color appColor = const Color(0xff15AEA9);

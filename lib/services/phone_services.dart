@@ -16,7 +16,7 @@ class PhoneService {
   User? user = FirebaseAuth.instance.currentUser;
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   verificationPhoneNumber(
-      BuildContext context, number, name, password, image) async {
+      BuildContext context, number, name, password, image,lat,log,address) async {
     SmartDialog.showLoading(
       animationBuilder: (controller, child, animationParam) {
         return Loading(text: '... تحميل');
@@ -39,6 +39,9 @@ class PhoneService {
             password: password,
             name: name,
             image: image,
+            latitude: lat,
+            longitude: log,
+            address: address,
           ));
     }
 

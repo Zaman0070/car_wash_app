@@ -135,6 +135,7 @@ class _AddCarState extends State<AddCar> {
                         brandName: _items[addCarController.brandIndex.value],
                         image: images[addCarController.brandIndex.value],
                         modelNmae: model[addCarController.modelIndex.value],
+                        
                       );
                     }),
                     SizedBox(height: 15.h),

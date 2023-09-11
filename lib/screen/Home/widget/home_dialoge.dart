@@ -1,5 +1,8 @@
 import 'package:brush/constant/app_image.dart';
 import 'package:brush/constant/widget/button.dart';
+import 'package:brush/model/loaction_Model.dart';
+import 'package:brush/services/share_pref.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -21,7 +24,22 @@ class HomeDialoge extends StatefulWidget {
 }
 
 class _HomeDialogeState extends State<HomeDialoge> {
-  int indexx = 0;
+  MySharedPreferences prefs = MySharedPreferences();
+  LocationModel model = LocationModel();
+  LocationModel? getlocationModel;
+  getLocation() async {
+    getlocationModel = await prefs.getModelData();
+  }
+
+  @override
+  void initState() {
+    getLocation();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  late int indexx = getlocationModel!.index!;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -57,135 +75,116 @@ class _HomeDialogeState extends State<HomeDialoge> {
             SizedBox(
               height: 15.h,
             ),
-            Container(
-              height: 45.h,
-              width: 1.sw,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: appColor.withOpacity(0.2),
-                      spreadRadius: 0,
-                      blurRadius: 10,
-                      offset: const Offset(0, 3), // changes position of shadow
-                    ),
-                  ]),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.index = 0;
-                        });
-                      },
-                      child: Container(
-                          width: 30.h,
-                          height: 30.h,
-                          decoration: BoxDecoration(
-                              border: Border.all(color: appColor, width: 1.5),
-                              borderRadius: BorderRadius.circular(30)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: widget.index == 0
-                                      ? appColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30)),
-                            ),
-                          )),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '(البيت)',
-                          style: TextStyle(fontSize: 15.sp, color: appColor),
-                        ),
-                        SizedBox(
-                          width: 2.w,
-                        ),
-                        Text(
-                          'الرياض حي الشفا',
-                          style: TextStyle(fontSize: 15.sp, color: appColor),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
             SizedBox(
-              height: 10.h,
-            ),
-            Container(
-              height: 45.h,
-              width: 1.sw,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: appColor.withOpacity(0.2),
-                      spreadRadius: 0,
-                      blurRadius: 10,
-                      offset: const Offset(0, 3), // changes position of shadow
-                    ),
-                  ]),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          widget.index = 1;
-                        });
-                      },
-                      child: Container(
-                          width: 30.h,
-                          height: 30.h,
-                          decoration: BoxDecoration(
-                              border: Border.all(color: appColor, width: 1.5),
-                              borderRadius: BorderRadius.circular(30)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: widget.index == 1
-                                      ? appColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30)),
+              height: 110.h,
+              child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('locations')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: appColor,
+                        ),
+                      );
+                    }
+                    return Wrap(
+                        direction: Axis.horizontal,
+                        children:
+                            List.generate(snapshot.data!.docs.length, (index) {
+                          LocationModel locationModel = LocationModel.fromMap(
+                              snapshot.data!.docs[index].data());
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                indexx = index;
+                                model = LocationModel(
+                                    latitude: locationModel.latitude,
+                                    longitude: locationModel.longitude,
+                                    address: locationModel.address,
+                                    addressType: locationModel.addressType,
+                                    addressDetails:
+                                        locationModel.addressDetails,
+                                    uid: locationModel.uid,
+                                    index: index);
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Container(
+                                height: 45.h,
+                                width: 1.sw,
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: appColor.withOpacity(0.2),
+                                        spreadRadius: 0,
+                                        blurRadius: 10,
+                                        offset: const Offset(
+                                            0, 3), // changes position of shadow
+                                      ),
+                                    ]),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                          width: 25.h,
+                                          height: 25.h,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: appColor, width: 1.5),
+                                              borderRadius:
+                                                  BorderRadius.circular(50)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: indexx == index
+                                                      ? appColor
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30)),
+                                            ),
+                                          )),
+                                      SizedBox(
+                                        width: 200.w,
+                                        child: Text(
+                                          snapshot.data!.docs[index]['address'],
+                                          textDirection: TextDirection.rtl,
+                                          overflow: TextOverflow.fade,
+                                          style: TextStyle(
+                                              fontSize: 13.sp, color: appColor),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          )),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '(العمل)',
-                          style: TextStyle(fontSize: 15.sp, color: appColor),
-                        ),
-                        SizedBox(
-                          width: 2.w,
-                        ),
-                        Text(
-                          'الرياض حي الأزهر',
-                          style: TextStyle(fontSize: 15.sp, color: appColor),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                          );
+                        }));
+                  }),
             ),
             SizedBox(
               height: 15.h,
             ),
-            AppButton(onTap: widget.close, text: 'اختر', barder: false),
+            AppButton(
+                onTap: () async {
+                  await prefs.saveModelData(model);
+                  print(model);
+                  Get.back();
+                },
+                text: 'اختر',
+                barder: false),
             SizedBox(
               height: 10.h,
             ),

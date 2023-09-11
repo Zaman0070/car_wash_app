@@ -3,9 +3,55 @@ import 'package:brush/screen/More/widget/more_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class ContactUs extends StatelessWidget {
+class ContactUs extends StatefulWidget {
   const ContactUs({super.key});
+
+  @override
+  State<ContactUs> createState() => _ContactUsState();
+}
+
+class _ContactUsState extends State<ContactUs> {
+  void sendEmail() async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path:
+          'recipient@example.com', // Replace with the recipient's email address
+      queryParameters: {
+        'subject': 'Hello from Flutter', // Email subject
+        'body': 'This is the body of the email.', // Email body
+      },
+    );
+
+    if (await canLaunch(emailLaunchUri.toString())) {
+      await launch(emailLaunchUri.toString());
+    } else {
+      // Handle error: Unable to launch email
+    }
+  }
+
+  void sendWhatsAppMessage() async {
+    const phoneNumber = '+966123456789';
+    const message = 'Hello from Flutter';
+
+    final whatsappUrl =
+        'https://wa.me/$phoneNumber/?text=${Uri.encodeComponent(message)}';
+
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl);
+    } else {}
+  }
+
+  void makePhoneCall() async {
+    const phoneNumber = '+966123456789';
+    const telUrl = 'tel:$phoneNumber';
+    if (await canLaunch(telUrl)) {
+      await launch(telUrl);
+    } else {
+      // Handle error: Unable to launch phone call
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +96,7 @@ class ContactUs extends StatelessWidget {
               image: AppImage.whatapp,
               title: 'واتساب',
               onTap: () {
-                Get.to(() => const ContactUs());
+                sendWhatsAppMessage();
               },
             ),
             SizedBox(
@@ -59,7 +105,9 @@ class ContactUs extends StatelessWidget {
             MoreBox(
               image: AppImage.mail,
               title: 'الأيميل',
-              onTap: () {},
+              onTap: () {
+                sendEmail();
+              },
             ),
             SizedBox(
               height: 10.h,
@@ -67,7 +115,9 @@ class ContactUs extends StatelessWidget {
             MoreBox(
               image: AppImage.call,
               title: 'اتصال',
-              onTap: () {},
+              onTap: () {
+                makePhoneCall();
+              },
             ),
             const Spacer(),
             Text(

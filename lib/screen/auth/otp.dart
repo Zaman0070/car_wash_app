@@ -4,6 +4,7 @@ import 'package:brush/constant/widget/button.dart';
 import 'package:brush/constant/widget/logo.dart';
 import 'package:brush/screen/auth/widget/otp_input.dart';
 import 'package:brush/services/firebase_auth.dart';
+import 'package:brush/services/firebase_services.dart';
 import 'package:brush/services/phone_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +17,19 @@ class OTP extends StatefulWidget {
   final String? password;
   final String? name;
   final String? image;
+  final String? latitude;
+  final String? longitude;
+  final String? address;
   const OTP(
       {super.key,
       this.number,
       this.verId,
       this.password,
       this.name,
-      this.image});
+      this.image,
+      this.latitude,
+      this.longitude,
+      this.address});
   @override
   State<OTP> createState() => _LoginPageState();
 }
@@ -31,7 +38,8 @@ class _LoginPageState extends State<OTP> {
   String error = '';
   late Timer _timer;
   int _start = 60;
-  FirebaseAuthServices firebaseService = FirebaseAuthServices();
+  FirebaseAuthServices authServices = FirebaseAuthServices();
+  FirebaseServices firebaseFirestore = FirebaseServices();
   final PhoneService _phoneService = PhoneService();
   final TextEditingController _fieldOne = TextEditingController();
   final TextEditingController _fieldTwo = TextEditingController();
@@ -58,7 +66,7 @@ class _LoginPageState extends State<OTP> {
       // ignore: unnecessary_null_comparison
       if (user != null) {
         FirebaseAuth.instance.currentUser!.delete().whenComplete(() async {
-          await firebaseService.userRegister(
+          await authServices.userRegister(
             '${widget.number}@gmail.com',
             widget.password,
             context,
@@ -66,6 +74,12 @@ class _LoginPageState extends State<OTP> {
             widget.name,
             widget.number,
           );
+          await firebaseFirestore.addLoaction(
+              addressDetails: '',
+              addressType: 'المنزل',
+              latitude: widget.latitude!,
+              longitude: widget.longitude!,
+              address: widget.address!);
         });
 
         // SmartDialog.dismiss();
@@ -150,7 +164,7 @@ class _LoginPageState extends State<OTP> {
             const SizedBox(
               height: 40,
             ),
-             const Logo(),
+            const Logo(),
             const SizedBox(
               height: 30,
             ),
@@ -209,10 +223,16 @@ class _LoginPageState extends State<OTP> {
                               String _otp = '${_fieldOne.text}${_fieldTwo.text}'
                                   '${_fieldThree.text}${_fieldFour.text}'
                                   '${_fieldFive.text}${_fieldSix.text}';
-
                               setState(() {
                                 phoneCredential(context, _otp)
-                                    .whenComplete(() {});
+                                    .whenComplete(() async {
+                                  await firebaseFirestore.addLoaction(
+                                      addressDetails: '',
+                                      addressType: 'المنزل',
+                                      latitude: widget.latitude!,
+                                      longitude: widget.longitude!,
+                                      address: widget.address!);
+                                });
                               });
 
                               // login
@@ -228,7 +248,7 @@ class _LoginPageState extends State<OTP> {
                   height: 20,
                 ),
                 InkWell(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       _start = 60;
                       startTimer();
@@ -238,7 +258,10 @@ class _LoginPageState extends State<OTP> {
                         widget.number,
                         widget.name,
                         widget.password,
-                        widget.image);
+                        widget.image,
+                        widget.latitude,
+                        widget.latitude,
+                        widget.address);
                   },
                   child: Container(
                     width: double.infinity,

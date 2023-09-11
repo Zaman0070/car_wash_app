@@ -1,5 +1,5 @@
 import 'package:brush/constant/app_image.dart';
-import 'package:brush/screen/Home/home_page.dart';
+import 'package:brush/screen/Home/view/home_page.dart';
 import 'package:brush/screen/More/more.dart';
 import 'package:brush/screen/MyCar/my_car.dart';
 import 'package:brush/screen/MyOrder/my_Order.dart';

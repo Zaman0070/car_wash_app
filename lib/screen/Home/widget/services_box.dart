@@ -3,21 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ignore: must_be_immutable
-class ServiceBox extends StatefulWidget {
-  final String title;
-  final int price;
-  bool isSelected;
-  ServiceBox(
-      {super.key,
-      required this.title,
-      required this.price,
-      required this.isSelected});
+class ServiceBox extends StatelessWidget {
+  final String serviceName;
+  final String servicePrice;
+  final String serviceImage;
+  final Set<int> selectedIndices;
+  final VoidCallback onTap;
+  final int index;
+  ServiceBox({
+    super.key,
+    required this.serviceName,
+    required this.servicePrice,
+    required this.serviceImage,
+    required this.selectedIndices,
+    required this.onTap,
+    required this.index,
+  });
 
-  @override
-  State<ServiceBox> createState() => _ServiceBoxState();
-}
-
-class _ServiceBoxState extends State<ServiceBox> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -29,7 +31,7 @@ class _ServiceBoxState extends State<ServiceBox> {
           children: [
             Row(
               children: [
-                Image.asset('assets/icons/offer.png'),
+                Image.network(serviceImage),
                 SizedBox(
                   width: 6.w,
                 ),
@@ -38,14 +40,14 @@ class _ServiceBoxState extends State<ServiceBox> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.title,
+                      serviceName,
                       style: TextStyle(fontSize: 16.sp, color: black),
                     ),
                     SizedBox(
                       height: 5.h,
                     ),
                     Text(
-                      '${widget.price} ريال',
+                      '$servicePrice ريال',
                       style: TextStyle(
                           fontSize: 14.5.sp, color: Colors.grey.shade600),
                     ),
@@ -54,11 +56,7 @@ class _ServiceBoxState extends State<ServiceBox> {
               ],
             ),
             InkWell(
-              onTap: () {
-                setState(() {
-                  widget.isSelected = !widget.isSelected;
-                });
-              },
+              onTap: onTap,
               child: Container(
                   height: 25.h,
                   width: 25.h,
@@ -68,7 +66,9 @@ class _ServiceBoxState extends State<ServiceBox> {
                   ),
                   child: Icon(
                     Icons.check,
-                    color: widget.isSelected ? appColor : Colors.transparent,
+                    color: selectedIndices.contains(index)
+                        ? appColor
+                        : Colors.transparent,
                   )),
             ),
           ],
