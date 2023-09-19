@@ -102,6 +102,7 @@ class _ChooseCarBottomSheetsState extends State<ChooseCarBottomSheets> {
                                     brandIndex: index,
                                     image: widget.image[index]);
                             addCarController.update();
+
                             widget.addCarModels = widget.addCarModels.copyWith(
                                 brand: widget.item[index],
                                 brandIndex: index,
@@ -141,7 +142,6 @@ class _ChooseCarBottomSheetsState extends State<ChooseCarBottomSheets> {
                           log(widget.addCarModels.toString());
                           log(addCarController.carIndex.value.toString());
                           Get.back();
-                          // update the UI on selected item changes
                         },
                         text: 'تم',
                         barder: false),

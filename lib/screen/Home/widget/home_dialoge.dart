@@ -34,7 +34,6 @@ class _HomeDialogeState extends State<HomeDialoge> {
   @override
   void initState() {
     getLocation();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -89,10 +88,10 @@ class _HomeDialogeState extends State<HomeDialoge> {
                         ),
                       );
                     }
-                    return Wrap(
-                        direction: Axis.horizontal,
-                        children:
-                            List.generate(snapshot.data!.docs.length, (index) {
+                    return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
                           LocationModel locationModel = LocationModel.fromMap(
                               snapshot.data!.docs[index].data());
                           return InkWell(
@@ -171,7 +170,90 @@ class _HomeDialogeState extends State<HomeDialoge> {
                               ),
                             ),
                           );
-                        }));
+                        });
+                    // return Wrap(
+                    //     direction: Axis.horizontal,
+                    //     children:
+                    //         List.generate(snapshot.data!.docs.length, (index) {
+                    //       LocationModel locationModel = LocationModel.fromMap(
+                    //           snapshot.data!.docs[index].data());
+                    //       return InkWell(
+                    //         onTap: () {
+                    //           setState(() {
+                    //             indexx = index;
+                    //             model = LocationModel(
+                    //                 latitude: locationModel.latitude,
+                    //                 longitude: locationModel.longitude,
+                    //                 address: locationModel.address,
+                    //                 addressType: locationModel.addressType,
+                    //                 addressDetails:
+                    //                     locationModel.addressDetails,
+                    //                 uid: locationModel.uid,
+                    //                 index: index);
+                    //           });
+                    //         },
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.symmetric(vertical: 4),
+                    //           child: Container(
+                    //             height: 45.h,
+                    //             width: 1.sw,
+                    //             decoration: BoxDecoration(
+                    //                 color: Theme.of(context)
+                    //                     .scaffoldBackgroundColor,
+                    //                 borderRadius: BorderRadius.circular(10),
+                    //                 boxShadow: [
+                    //                   BoxShadow(
+                    //                     color: appColor.withOpacity(0.2),
+                    //                     spreadRadius: 0,
+                    //                     blurRadius: 10,
+                    //                     offset: const Offset(
+                    //                         0, 3), // changes position of shadow
+                    //                   ),
+                    //                 ]),
+                    //             child: Padding(
+                    //               padding:
+                    //                   const EdgeInsets.symmetric(horizontal: 5),
+                    //               child: Row(
+                    //                 mainAxisAlignment:
+                    //                     MainAxisAlignment.spaceBetween,
+                    //                 children: [
+                    //                   Container(
+                    //                       width: 25.h,
+                    //                       height: 25.h,
+                    //                       decoration: BoxDecoration(
+                    //                           border: Border.all(
+                    //                               color: appColor, width: 1.5),
+                    //                           borderRadius:
+                    //                               BorderRadius.circular(50)),
+                    //                       child: Padding(
+                    //                         padding: const EdgeInsets.all(2.0),
+                    //                         child: Container(
+                    //                           decoration: BoxDecoration(
+                    //                               color: indexx == index
+                    //                                   ? appColor
+                    //                                   : Colors.transparent,
+                    //                               borderRadius:
+                    //                                   BorderRadius.circular(
+                    //                                       30)),
+                    //                         ),
+                    //                       )),
+                    //                   SizedBox(
+                    //                     width: 200.w,
+                    //                     child: Text(
+                    //                       snapshot.data!.docs[index]['address'],
+                    //                       textDirection: TextDirection.rtl,
+                    //                       overflow: TextOverflow.fade,
+                    //                       style: TextStyle(
+                    //                           fontSize: 13.sp, color: appColor),
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       );
+                    //     }));
                   }),
             ),
             SizedBox(

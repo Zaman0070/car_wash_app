@@ -1,13 +1,15 @@
 import 'package:brush/constant/app_image.dart';
+import 'package:brush/controller/service_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 // ignore: must_be_immutable
 class ServiceBox extends StatelessWidget {
   final String serviceName;
   final String servicePrice;
   final String serviceImage;
-  final Set<int> selectedIndices;
+  final List<int> selectedIndices;
   final VoidCallback onTap;
   final int index;
   ServiceBox({
@@ -19,6 +21,8 @@ class ServiceBox extends StatelessWidget {
     required this.onTap,
     required this.index,
   });
+
+  ServiceController serviceController = Get.put(ServiceController());
 
   @override
   Widget build(BuildContext context) {
@@ -55,22 +59,24 @@ class ServiceBox extends StatelessWidget {
                 ),
               ],
             ),
-            InkWell(
-              onTap: onTap,
-              child: Container(
-                  height: 25.h,
-                  width: 25.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: appColor),
-                  ),
-                  child: Icon(
-                    Icons.check,
-                    color: selectedIndices.contains(index)
-                        ? appColor
-                        : Colors.transparent,
-                  )),
-            ),
+            Obx(() {
+              return InkWell(
+                onTap: onTap,
+                child: Container(
+                    height: 25.h,
+                    width: 25.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: appColor),
+                    ),
+                    child: Icon(
+                      Icons.check,
+                      color: serviceController.selectedIndices.contains(index)
+                          ? appColor
+                          : Colors.transparent,
+                    )),
+              );
+            }),
           ],
         ),
       ),

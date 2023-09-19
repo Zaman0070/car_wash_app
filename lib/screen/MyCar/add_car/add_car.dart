@@ -1,6 +1,7 @@
 import 'package:brush/constant/app_image.dart';
 import 'package:brush/constant/widget/button.dart';
 import 'package:brush/controller/image_controller.dart';
+import 'package:brush/controller/order_controller.dart';
 import 'package:brush/screen/MyCar/add_car/widget/add_car_model.dart';
 import 'package:brush/screen/MyCar/add_car/widget/bottom_sheet.dart';
 import 'package:brush/screen/MyCar/add_car/widget/car_color.dart';
@@ -88,6 +89,7 @@ class _AddCarState extends State<AddCar> {
   ImagePickerController imagePickerController =
       Get.put(ImagePickerController());
   FirebaseServices firebaseServices = FirebaseServices();
+  OrderController orderController = Get.put(OrderController());
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +137,6 @@ class _AddCarState extends State<AddCar> {
                         brandName: _items[addCarController.brandIndex.value],
                         image: images[addCarController.brandIndex.value],
                         modelNmae: model[addCarController.modelIndex.value],
-                        
                       );
                     }),
                     SizedBox(height: 15.h),
@@ -211,6 +212,7 @@ class _AddCarState extends State<AddCar> {
                                 plateNumber: platNumberController.text,
                                 image: imagePickerController.downloadURL.value,
                                 painting: paintingController.text);
+                            orderController.getCarData();
                           });
                         },
                         text: 'إضافة',

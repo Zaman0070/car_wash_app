@@ -1,4 +1,5 @@
 import 'package:brush/constant/app_image.dart';
+import 'package:brush/controller/order_controller.dart';
 import 'package:brush/screen/Home/view/add_new_address.dart';
 import 'package:brush/screen/Home/view/new_order.dart';
 import 'package:brush/screen/gifts/gifts.dart';
@@ -24,6 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  OrderController orderController = Get.put(OrderController());
   String? currentAddress;
   String? latitude;
   String? longitude;
@@ -131,7 +133,9 @@ class _HomePageState extends State<HomePage> {
                   address(
                       context: context,
                       address: () {
-                        Get.to(() => const AddNewAddress());
+                        Future.delayed(const Duration(microseconds: 100), () {
+                          Get.to(() => const AddNewAddress());
+                        });
                       },
                       choose: () {
                         print('g');
@@ -144,6 +148,10 @@ class _HomePageState extends State<HomePage> {
             ),
             HomeButton(
                 onTap: () {
+                  orderController.addCarModelsList.clear();
+                  orderController.images.clear();
+                  orderController.items.clear();
+                  orderController.getCarData();
                   Get.to(() => const NewOrder());
                 },
                 text: 'حجز',

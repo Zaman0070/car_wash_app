@@ -11,6 +11,8 @@ class AddCarController extends GetxController {
   var colorIndex = 0.obs;
   var myCar = <AddCarModels>[].obs;
 
+  var addCarModelList = <AddCarModels>[].obs;
+
   @override
   void onInit() {
     super.onInit();

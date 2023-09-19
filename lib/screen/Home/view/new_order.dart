@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:brush/constant/app_image.dart';
+import 'package:brush/controller/add_car_controller.dart';
 import 'package:brush/controller/order_controller.dart';
+import 'package:brush/controller/service_controller.dart';
 import 'package:brush/model/addcar_Model.dart';
 import 'package:brush/model/loaction_Model.dart';
 import 'package:brush/model/services_Model.dart';
@@ -10,10 +12,12 @@ import 'package:brush/screen/Home/widget/choose_car_model.dart';
 import 'package:brush/screen/Home/widget/homebutton.dart';
 import 'package:brush/screen/Home/widget/services_box.dart';
 import 'package:brush/screen/Home/widget/timePicker.dart';
+import 'package:brush/screen/MyCar/add_car/add_car.dart';
 import 'package:brush/services/firebase_services.dart';
 import 'package:brush/services/share_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/date_picker_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
@@ -32,6 +36,7 @@ class _NewOrderState extends State<NewOrder> {
   DateTime? selectedDate;
   final DatePickerController _controller = DatePickerController();
   OrderController orderController = Get.put(OrderController());
+  AddCarController addCarController = Get.put(AddCarController());
   List<String> item = [
     '12',
     '01',
@@ -44,10 +49,6 @@ class _NewOrderState extends State<NewOrder> {
     '08',
   ];
   FirebaseServices firebaseServices = FirebaseServices();
-  Set<int> selectedIndices = {};
-  Set<int> price = {0};
-  final int _selectedItemIndex = 0;
-
   List<ServicesModel> services = [];
 
   // current Loaction
@@ -57,7 +58,7 @@ class _NewOrderState extends State<NewOrder> {
   Position? currentPosition;
   @override
   void initState() {
-    getCarData();
+    // getCarData();
     getLocation();
     super.initState();
   }
@@ -123,31 +124,13 @@ class _NewOrderState extends State<NewOrder> {
 
   List<dynamic> images = [];
   List<dynamic> items = [];
-
-  List<AddCarModels> addCarModelsList = [];
   MySharedPreferences prefs = MySharedPreferences();
   LocationModel? getlocationModel;
   getLocation() async {
     getlocationModel = await prefs.getModelData();
   }
 
-  getCarData() async {
-    Stream<QuerySnapshot<Map<String, dynamic>>> stream =
-        FirebaseFirestore.instance.collection('AddCar').snapshots();
-    stream.forEach((element) {
-      for (var element in element.docs) {
-        if (!element.exists) {
-          return;
-        }
-        AddCarModels addCarModels = AddCarModels.fromMap(element.data());
-        setState(() {
-          images.add(addCarModels.image);
-          items.add(addCarModels.brand);
-          addCarModelsList.add(addCarModels);
-        });
-      }
-    });
-  }
+  ServiceController servicesController = Get.put(ServiceController());
 
   @override
   Widget build(BuildContext context) {
@@ -205,52 +188,104 @@ class _NewOrderState extends State<NewOrder> {
                           itemBuilder: (context, index) {
                             ServicesModel servicesModel = ServicesModel.fromMap(
                                 snapshot.data!.docs[index].data());
-                            bool isSelected = selectedIndices.contains(index);
                             return ServiceBox(
                                 index: index,
                                 serviceName: servicesModel.serviceName!,
                                 servicePrice: servicesModel.servicePrice!,
                                 serviceImage: servicesModel.serviceImage!,
-                                selectedIndices: selectedIndices,
+                                selectedIndices:
+                                    servicesController.selectedIndices,
                                 onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedIndices.remove(index);
-                                      price.remove(servicesModel.servicePrice!);
-                                      services.remove(servicesModel);
-                                    } else {
-                                      selectedIndices.add(index);
-                                      price.add(int.parse(
-                                          servicesModel.servicePrice!));
-                                      services.add(servicesModel);
-                                      getCurrentPosition();
-                                    }
-                                  });
+                                  servicesController.toggleService(
+                                      index, servicesModel);
+                                  getCurrentPosition();
                                 });
                           });
                     }),
                 SizedBox(height: 12.h),
                 //
-                Obx(() {
-                  return ChooseCarModel(
-                    brand: () {
-                      Get.bottomSheet(ChooseCarBottomSheets(
-                        isBrand: true,
-                        image: images,
-                        selectedItemIndex: _selectedItemIndex,
-                        item: orderController.items,
-                        addCarModels: orderController
-                            .addCarModelsList[orderController.carIndex.value],
-                      ));
-                    },
-                    brandName:
-                        orderController.items[orderController.carIndex.value],
-                    image:
-                        orderController.images[orderController.carIndex.value],
-                    addCarModels: orderController
-                        .addCarModelsList[orderController.carIndex.value],
-                  );
-                }),
+                StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('AddCar')
+                        .where('uid',
+                            isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ));
+                      }
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: Text('لا يوجد سيارات مضافة'),
+                        );
+                      }
+
+                      if (snapshot.data!.docs.isEmpty) {
+                        return InkWell(
+                          onTap: () {
+                            Get.to(() => const AddCar());
+                          },
+                          child: Container(
+                              height: 40.h,
+                              width: 1.sw,
+                              decoration: BoxDecoration(
+                                color: appColor,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: appColor),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(width: 10.w),
+                                  Text('اضف سيارة',
+                                      style: TextStyle(
+                                        color: white,
+                                        fontSize: 16.h,
+                                      )),
+                                  SizedBox(width: 10.w),
+                                  Icon(Icons.add, color: white),
+                                ],
+                              )),
+                        );
+                      }
+
+                      if (orderController.addCarModelsList.isEmpty) {
+                        for (var element in snapshot.data!.docs) {
+                          AddCarModels addCarModels =
+                              AddCarModels.fromMap(element.data());
+                          orderController.images.add(addCarModels.image);
+                          orderController.items.add(addCarModels.brand);
+                          orderController.addCarModelsList.add(addCarModels);
+                        }
+                        orderController
+                            .update(); // Update once after adding all the data
+                      }
+                      return Obx(() {
+                        return ChooseCarModel(
+                          brand: () {
+                            // addCarController.addCarModelList.clear();
+                            Get.bottomSheet(ChooseCarBottomSheets(
+                              isBrand: true,
+                              image: orderController.images,
+                              selectedItemIndex: orderController.carIndex.value,
+                              item: orderController.items,
+                              addCarModels: orderController.addCarModelsList[
+                                  orderController.carIndex.value],
+                            ));
+                          },
+                          brandName: orderController
+                              .items[orderController.carIndex.value],
+                          image: orderController
+                              .images[orderController.carIndex.value],
+                          addCarModels: orderController
+                              .addCarModelsList[orderController.carIndex.value],
+                        );
+                      });
+                    }),
+
                 SizedBox(height: 12.h),
                 Text('الوقت والتاريخ',
                     style: TextStyle(
@@ -333,10 +368,8 @@ class _NewOrderState extends State<NewOrder> {
                             ),
                             IconButton(
                                 onPressed: () {
-                                  setState(() {
-                                    _controller.animateToDate(DateTime.now()
-                                        .add(const Duration(days: 1)));
-                                  });
+                                  _controller.animateToDate(DateTime.now()
+                                      .add(const Duration(days: 1)));
                                 },
                                 icon: Icon(Icons.arrow_forward_ios,
                                     color: appColor))
@@ -362,11 +395,9 @@ class _NewOrderState extends State<NewOrder> {
                           height: 85.h,
                           deactivatedColor: appColor,
                           onDateChange: (date) {
-                            setState(() {
-                              selectedDate = date;
-                              print(selectedDate.toString()
-                                ..replaceAll('00', '').replaceAll('0:', ''));
-                            });
+                            selectedDate = date;
+                            print(selectedDate.toString()
+                              ..replaceAll('00', '').replaceAll('0:', ''));
                           },
                         ),
                       ),
@@ -385,39 +416,33 @@ class _NewOrderState extends State<NewOrder> {
                 Obx(() {
                   return HomeButton2(
                     ontap: () async {
-                      if (services.isNotEmpty &&
-                          orderController.addCarModel.value.brand != null) {
-                        await firebaseServices.newOrder(
-                          services: services,
-                          time: ' ${item[orderController.timeIdex.value]}:00',
-                          date: selectedDate
-                              .toString()
-                              .replaceAll('00:00:00.000', ''),
-                          price: price
-                              .reduce((value, element) => value + element)
-                              .toString(),
-                          latitude: currentPosition!.latitude.toString(),
-                          longitude: currentPosition!.longitude.toString(),
-                          address: getlocationModel != null
-                              ? getlocationModel!.address!
-                              : currentAddress!,
-                          brand: orderController.addCarModel.value.brand!,
-                          color: orderController.addCarModel.value.color!,
-                          image: orderController.addCarModel.value.image!,
-                          model: orderController.addCarModel.value.model!,
-                          painting: orderController.addCarModel.value.painting!,
-                          plateNumber:
-                              orderController.addCarModel.value.plateNumber!,
-                        );
-                      } else {
-                        Get.snackbar(
-                            'خطأ', 'من فضلك اختر الخدمات والوقت والتاريخ',
-                            backgroundColor: Colors.red);
-                      }
+                      await firebaseServices.newOrder(
+                        services: servicesController.services,
+                        time: ' ${item[orderController.timeIdex.value]}:00',
+                        date: selectedDate
+                            .toString()
+                            .replaceAll('00:00:00.000', ''),
+                        price: servicesController.prices
+                            .reduce((value, element) => value + element)
+                            .toString(),
+                        latitude: currentPosition!.latitude.toString(),
+                        longitude: currentPosition!.longitude.toString(),
+                        address: getlocationModel != null
+                            ? getlocationModel!.address!
+                            : currentAddress!,
+                        brand: orderController.addCarModel.value.brand!,
+                        color: orderController.addCarModel.value.color!,
+                        image: orderController.addCarModel.value.image!,
+                        model: orderController.addCarModel.value.model!,
+                        painting: orderController.addCarModel.value.painting!,
+                        plateNumber:
+                            orderController.addCarModel.value.plateNumber!,
+                      );
                     },
                     date: i.DateFormat('MMM d').format(DateTime.now()),
                     time: item[orderController.timeIdex.value],
-                    price: price.reduce((value, element) => value + element),
+                    price: servicesController.prices
+                        .reduce((value, element) => value + element),
                   );
                 }),
               ],

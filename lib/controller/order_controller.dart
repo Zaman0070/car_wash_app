@@ -1,5 +1,6 @@
 import 'package:brush/model/addcar_Model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class OrderController extends GetxController {
@@ -10,6 +11,9 @@ class OrderController extends GetxController {
   var images = <dynamic>[].obs;
   var items = <dynamic>[].obs;
 
+  RxInt selectedItemIndex = 0.obs;
+  RxBool isBrand = true.obs;
+
   @override
   void onInit() {
     getCarData();
@@ -17,14 +21,25 @@ class OrderController extends GetxController {
   }
 
   getCarData() async {
-    FirebaseFirestore.instance.collection('AddCar').get().then((value) {
-      for (var element in value.docs) {
-        AddCarModels addCarModels = AddCarModels.fromMap(element.data());
-        images.add(addCarModels.image);
-        items.add(addCarModels.brand);
-        addCarModelsList.add(addCarModels);
-        update();
+    // addCarModelsList.clear();
+    // images.clear();
+    // items.clear();
+    await FirebaseFirestore.instance
+        .collection('AddCar')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      if (addCarModelsList.isNotEmpty) {
+        addCarModelsList.clear();
+        images.clear();
+        items.clear();
       }
+      for (var element in value.docs) {
+        addCarModelsList.add(AddCarModels.fromMap(element.data()));
+        images.add(element.data()['image']);
+        items.add(element.data()['brand']);
+      }
+      update();
     });
   }
 }
