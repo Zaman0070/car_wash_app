@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:brush/constant/app_image.dart';
 import 'package:brush/controller/add_car_controller.dart';
+import 'package:brush/controller/home_controller.dart';
 import 'package:brush/controller/order_controller.dart';
 import 'package:brush/controller/service_controller.dart';
 import 'package:brush/model/addcar_Model.dart';
@@ -32,9 +33,9 @@ class NewOrder extends StatefulWidget {
 }
 
 class _NewOrderState extends State<NewOrder> {
-  DateTime? selectedDate;
   final DatePickerController _controller = DatePickerController();
   OrderController orderController = Get.put(OrderController());
+  HomeController homeController = Get.put(HomeController());
   AddCarController addCarController = Get.put(AddCarController());
   List<String> item = [
     '12',
@@ -51,7 +52,7 @@ class _NewOrderState extends State<NewOrder> {
   List<ServicesModel> services = [];
 
   // current Loaction
-  String? currentAddress;
+  String currentAddress = '';
   String? latitude;
   String? longitude;
   Position? currentPosition;
@@ -124,9 +125,10 @@ class _NewOrderState extends State<NewOrder> {
   List<dynamic> images = [];
   List<dynamic> items = [];
   MySharedPreferences prefs = MySharedPreferences();
-  LocationModel? getlocationModel;
+  LocationModel getlocationModel = LocationModel();
   getLocation() async {
-    getlocationModel = await prefs.getModelData();
+    getlocationModel = (await prefs.getModelData())!;
+    print(getlocationModel.latitude! + 'ffffff');
   }
 
   ServiceController servicesController = Get.put(ServiceController());
@@ -202,7 +204,6 @@ class _NewOrderState extends State<NewOrder> {
                           });
                     }),
                 SizedBox(height: 12.h),
-                //
                 StreamBuilder(
                     stream: FirebaseFirestore.instance
                         .collection('AddCar')
@@ -284,7 +285,6 @@ class _NewOrderState extends State<NewOrder> {
                         );
                       });
                     }),
-
                 SizedBox(height: 12.h),
                 Text('الوقت والتاريخ',
                     style: TextStyle(
@@ -394,9 +394,7 @@ class _NewOrderState extends State<NewOrder> {
                           height: 85.h,
                           deactivatedColor: appColor,
                           onDateChange: (date) {
-                            selectedDate = date;
-                            print(selectedDate.toString()
-                              ..replaceAll('00', '').replaceAll('0:', ''));
+                            homeController.setDate(date);
                           },
                         ),
                       ),
@@ -418,17 +416,15 @@ class _NewOrderState extends State<NewOrder> {
                       await firebaseServices.newOrder(
                         services: servicesController.services,
                         time: ' ${item[orderController.timeIdex.value]}:00',
-                        date: selectedDate
+                        date: homeController.selectedDate.value
                             .toString()
                             .replaceAll('00:00:00.000', ''),
                         price: servicesController.prices
                             .reduce((value, element) => value + element)
                             .toString(),
-                        latitude: currentPosition!.latitude.toString(),
-                        longitude: currentPosition!.longitude.toString(),
-                        address: getlocationModel != null
-                            ? getlocationModel!.address!
-                            : currentAddress!,
+                        latitude: getlocationModel.latitude ?? longitude!,
+                        longitude: getlocationModel.longitude ?? latitude!,
+                        address: getlocationModel.address ?? currentAddress,
                         brand: orderController.addCarModel.value.brand!,
                         color: orderController.addCarModel.value.color!,
                         image: orderController.addCarModel.value.image!,
@@ -438,7 +434,8 @@ class _NewOrderState extends State<NewOrder> {
                             orderController.addCarModel.value.plateNumber!,
                       );
                     },
-                    date: i.DateFormat('MMM d').format(DateTime.now()),
+                    date: i.DateFormat('MMM d')
+                        .format(homeController.selectedDate.value),
                     time: item[orderController.timeIdex.value],
                     price: servicesController.prices
                         .reduce((value, element) => value + element),

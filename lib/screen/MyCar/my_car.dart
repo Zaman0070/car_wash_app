@@ -117,10 +117,7 @@ class MyCars extends StatelessWidget {
                           ),
                         );
                       },
-                      image: addCarModels.image!,
-                      brand: addCarModels.brand!,
-                      painting: addCarModels.painting!,
-                      platNumber: addCarModels.plateNumber!,
+                      addCarModel: addCarModels,
                     ),
                   );
                 });

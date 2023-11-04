@@ -2,6 +2,7 @@ import 'package:brush/constant/app_image.dart';
 import 'package:brush/controller/order_controller.dart';
 import 'package:brush/screen/Home/view/add_new_address.dart';
 import 'package:brush/screen/Home/view/new_order.dart';
+import 'package:brush/screen/Home/view/notification.dart';
 import 'package:brush/screen/gifts/gifts.dart';
 import 'package:brush/screen/offer/offer.dart';
 import 'package:brush/screen/Home/widget/home_button.dart';
@@ -90,7 +91,9 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.to(() => const Notifications());
+              },
               icon: Icon(
                 Icons.notifications,
                 color: appColor,
@@ -129,20 +132,20 @@ class _HomePageState extends State<HomePage> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             HomeWalletBox(
-                address: () {
-                  address(
-                      context: context,
-                      address: () {
-                        Future.delayed(const Duration(microseconds: 100), () {
-                          Get.to(() => const AddNewAddress());
-                        });
-                      },
-                      choose: () {
-                        print('g');
-                      },
-                      index: index);
-                },
-                walletBalance: '0.0'),
+              address: () {
+                address(
+                    context: context,
+                    address: () {
+                      Future.delayed(const Duration(microseconds: 100), () {
+                        Get.to(() => const AddNewAddress());
+                      });
+                    },
+                    choose: () {
+                      print('g');
+                    },
+                    index: index);
+              },
+            ),
             SizedBox(
               height: 18.h,
             ),

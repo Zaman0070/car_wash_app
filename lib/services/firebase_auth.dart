@@ -14,7 +14,7 @@ import '../constant/app_image.dart';
 class FirebaseAuthServices {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-  userRegister(email, password, context, image, name, phone,) async {
+  userRegister(email, password, context, image, name, phone,cityName) async {
     SmartDialog.showLoading(
       animationBuilder: (controller, child, animationParam) {
         return Loading(text: '... تحميل');
@@ -33,6 +33,7 @@ class FirebaseAuthServices {
           name: name,
           uid: userCredential.user!.uid,
           walatBalance: 0,
+          cityName: cityName,
           token: status!.userId);
 
       if (userCredential.user!.uid.isNotEmpty) {

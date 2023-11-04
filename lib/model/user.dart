@@ -8,8 +8,9 @@ class UserModel {
   String? password;
   String? image;
   String? uid;
-  double? walatBalance;
+  int? walatBalance;
   String? token;
+  String? cityName;
   UserModel({
     this.name,
     this.phone,
@@ -19,6 +20,7 @@ class UserModel {
     this.uid,
     this.walatBalance,
     this.token,
+    this.cityName,
   });
 
   UserModel copyWith({
@@ -28,8 +30,9 @@ class UserModel {
     String? password,
     String? image,
     String? uid,
-    double? walatBalance,
+    int? walatBalance,
     String? token,
+    String? cityName,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -40,6 +43,7 @@ class UserModel {
       uid: uid ?? this.uid,
       walatBalance: walatBalance ?? this.walatBalance,
       token: token ?? this.token,
+      cityName: cityName ?? this.cityName,
     );
   }
 
@@ -53,6 +57,7 @@ class UserModel {
       'uid': uid,
       'walatBalance': walatBalance,
       'token': token,
+      'cityName': cityName,
     };
   }
 
@@ -64,45 +69,47 @@ class UserModel {
       password: map['password'] != null ? map['password'] as String : null,
       image: map['image'] != null ? map['image'] as String : null,
       uid: map['uid'] != null ? map['uid'] as String : null,
-      walatBalance:
-          map['walatBalance'] != null ? map['walatBalance'] as double : null,
+      walatBalance: map['walatBalance'] != null ? map['walatBalance'] as int : null,
       token: map['token'] != null ? map['token'] as String : null,
+      cityName: map['cityName'] != null ? map['cityName'] as String : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory UserModel.fromJson(String source) =>
-      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'UserModel(name: $name, phone: $phone, email: $email, password: $password, image: $image, uid: $uid, walatBalance: $walatBalance, token: $token)';
+    return 'UserModel(name: $name, phone: $phone, email: $email, password: $password, image: $image, uid: $uid, walatBalance: $walatBalance, token: $token, cityName: $cityName)';
   }
 
   @override
   bool operator ==(covariant UserModel other) {
     if (identical(this, other)) return true;
-
-    return other.name == name &&
-        other.phone == phone &&
-        other.email == email &&
-        other.password == password &&
-        other.image == image &&
-        other.uid == uid &&
-        other.walatBalance == walatBalance &&
-        other.token == token;
+  
+    return 
+      other.name == name &&
+      other.phone == phone &&
+      other.email == email &&
+      other.password == password &&
+      other.image == image &&
+      other.uid == uid &&
+      other.walatBalance == walatBalance &&
+      other.token == token &&
+      other.cityName == cityName;
   }
 
   @override
   int get hashCode {
     return name.hashCode ^
-        phone.hashCode ^
-        email.hashCode ^
-        password.hashCode ^
-        image.hashCode ^
-        uid.hashCode ^
-        walatBalance.hashCode ^
-        token.hashCode;
+      phone.hashCode ^
+      email.hashCode ^
+      password.hashCode ^
+      image.hashCode ^
+      uid.hashCode ^
+      walatBalance.hashCode ^
+      token.hashCode ^
+      cityName.hashCode;
   }
 }

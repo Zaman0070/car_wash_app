@@ -26,9 +26,11 @@ class HomeDialoge extends StatefulWidget {
 class _HomeDialogeState extends State<HomeDialoge> {
   MySharedPreferences prefs = MySharedPreferences();
   LocationModel model = LocationModel();
-  LocationModel? getlocationModel;
+  LocationModel getlocationModel = LocationModel();
+  late int indexx = 0;
   getLocation() async {
-    getlocationModel = await prefs.getModelData();
+    getlocationModel = (await prefs.getModelData())!;
+    indexx = getlocationModel.index!;
   }
 
   @override
@@ -36,8 +38,6 @@ class _HomeDialogeState extends State<HomeDialoge> {
     getLocation();
     super.initState();
   }
-
-  late int indexx = getlocationModel!.index!;
 
   @override
   Widget build(BuildContext context) {
@@ -88,12 +88,28 @@ class _HomeDialogeState extends State<HomeDialoge> {
                         ),
                       );
                     }
+                    List<String> uniqueAddresses = [];
+                    List<LocationModel> locationModels = [];
+
+                    for (int index = 0;
+                        index < snapshot.data!.docs.length;
+                        index++) {
+                      LocationModel locationModel = LocationModel.fromMap(
+                          snapshot.data!.docs[index].data());
+                      String address = locationModel.address!;
+
+                      if (!uniqueAddresses.contains(address)) {
+                        // Add the address to the list of unique addresses
+                        uniqueAddresses.add(address);
+                        // Add the corresponding LocationModel to the list
+                        locationModels.add(locationModel);
+                      }
+                    }
                     return ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
+                        itemCount: locationModels.length,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
-                          LocationModel locationModel = LocationModel.fromMap(
-                              snapshot.data!.docs[index].data());
+                          LocationModel locationModel = locationModels[index];
                           return InkWell(
                             onTap: () {
                               setState(() {
@@ -171,89 +187,6 @@ class _HomeDialogeState extends State<HomeDialoge> {
                             ),
                           );
                         });
-                    // return Wrap(
-                    //     direction: Axis.horizontal,
-                    //     children:
-                    //         List.generate(snapshot.data!.docs.length, (index) {
-                    //       LocationModel locationModel = LocationModel.fromMap(
-                    //           snapshot.data!.docs[index].data());
-                    //       return InkWell(
-                    //         onTap: () {
-                    //           setState(() {
-                    //             indexx = index;
-                    //             model = LocationModel(
-                    //                 latitude: locationModel.latitude,
-                    //                 longitude: locationModel.longitude,
-                    //                 address: locationModel.address,
-                    //                 addressType: locationModel.addressType,
-                    //                 addressDetails:
-                    //                     locationModel.addressDetails,
-                    //                 uid: locationModel.uid,
-                    //                 index: index);
-                    //           });
-                    //         },
-                    //         child: Padding(
-                    //           padding: const EdgeInsets.symmetric(vertical: 4),
-                    //           child: Container(
-                    //             height: 45.h,
-                    //             width: 1.sw,
-                    //             decoration: BoxDecoration(
-                    //                 color: Theme.of(context)
-                    //                     .scaffoldBackgroundColor,
-                    //                 borderRadius: BorderRadius.circular(10),
-                    //                 boxShadow: [
-                    //                   BoxShadow(
-                    //                     color: appColor.withOpacity(0.2),
-                    //                     spreadRadius: 0,
-                    //                     blurRadius: 10,
-                    //                     offset: const Offset(
-                    //                         0, 3), // changes position of shadow
-                    //                   ),
-                    //                 ]),
-                    //             child: Padding(
-                    //               padding:
-                    //                   const EdgeInsets.symmetric(horizontal: 5),
-                    //               child: Row(
-                    //                 mainAxisAlignment:
-                    //                     MainAxisAlignment.spaceBetween,
-                    //                 children: [
-                    //                   Container(
-                    //                       width: 25.h,
-                    //                       height: 25.h,
-                    //                       decoration: BoxDecoration(
-                    //                           border: Border.all(
-                    //                               color: appColor, width: 1.5),
-                    //                           borderRadius:
-                    //                               BorderRadius.circular(50)),
-                    //                       child: Padding(
-                    //                         padding: const EdgeInsets.all(2.0),
-                    //                         child: Container(
-                    //                           decoration: BoxDecoration(
-                    //                               color: indexx == index
-                    //                                   ? appColor
-                    //                                   : Colors.transparent,
-                    //                               borderRadius:
-                    //                                   BorderRadius.circular(
-                    //                                       30)),
-                    //                         ),
-                    //                       )),
-                    //                   SizedBox(
-                    //                     width: 200.w,
-                    //                     child: Text(
-                    //                       snapshot.data!.docs[index]['address'],
-                    //                       textDirection: TextDirection.rtl,
-                    //                       overflow: TextOverflow.fade,
-                    //                       style: TextStyle(
-                    //                           fontSize: 13.sp, color: appColor),
-                    //                     ),
-                    //                   ),
-                    //                 ],
-                    //               ),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       );
-                    //     }));
                   }),
             ),
             SizedBox(

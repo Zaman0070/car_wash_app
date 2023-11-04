@@ -1,21 +1,15 @@
-
 import 'package:brush/constant/app_image.dart';
+import 'package:brush/model/addcar_Model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CarBox extends StatelessWidget {
-  final String image;
-  final String brand;
-  final String painting;
-  final String platNumber;
+  final AddCarModels addCarModel;
   final Function() edit;
   final Function() delete;
   const CarBox(
       {super.key,
-      required this.image,
-      required this.brand,
-      required this.painting,
-      required this.platNumber,
+      required this.addCarModel,
       required this.edit,
       required this.delete});
 
@@ -32,7 +26,7 @@ class CarBox extends StatelessWidget {
               color: appColor.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 10,
-              offset: const Offset(0, 3), // changes position of shadow
+              offset: const Offset(0, 3), 
             ),
           ]),
       child: Directionality(
@@ -45,7 +39,7 @@ class CarBox extends StatelessWidget {
               Row(
                 children: [
                   Image.network(
-                    image,
+                    addCarModel.image!,
                     height: 50.h,
                   ),
                   SizedBox(
@@ -56,7 +50,7 @@ class CarBox extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        brand,
+                        "${addCarModel.brand!}   (${addCarModel.model!})",
                         style: TextStyle(
                           color: appColor,
                           fontSize: 15,
@@ -78,7 +72,7 @@ class CarBox extends StatelessWidget {
                             width: 5.w,
                           ),
                           Text(
-                            "$platNumber $painting",
+                            "${addCarModel.plateNumber} ${addCarModel.painting}",
                             style: TextStyle(
                               color: appColor2,
                               fontSize: 13,

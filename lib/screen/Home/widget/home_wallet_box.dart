@@ -1,12 +1,46 @@
 import 'package:brush/constant/app_image.dart';
+import 'package:brush/screen/Home/view/add_walet_balance.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 // ignore: must_be_immutable
-class HomeWalletBox extends StatelessWidget {
+class HomeWalletBox extends StatefulWidget {
   Function() address;
-  String walletBalance;
-   HomeWalletBox({super.key, required this.address, required this.walletBalance});
+  HomeWalletBox({
+    super.key,
+    required this.address,
+  });
+
+  @override
+  State<HomeWalletBox> createState() => _HomeWalletBoxState();
+}
+
+class _HomeWalletBoxState extends State<HomeWalletBox> {
+  String cityname = '';
+  int waletBalance = 0;
+  void getCurrentLocation() async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        setState(() {
+          cityname = element['cityName'];
+          waletBalance = element['walatBalance'];
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    getCurrentLocation();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +57,14 @@ class HomeWalletBox extends StatelessWidget {
               width: 5,
             ),
             Text(
-              'الرياض',
+              cityname,
               style: TextStyle(fontSize: 16.sp, color: appColor),
             ),
             SizedBox(
               width: 5.w,
             ),
             InkWell(
-              onTap: address,
+              onTap: widget.address,
               child: CircleAvatar(
                 radius: 9.h,
                 backgroundColor: appColor,
@@ -47,39 +81,44 @@ class HomeWalletBox extends StatelessWidget {
             ),
           ],
         ),
-        Container(
-            height: 32.h,
-            width: 90.w,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: appColor.withOpacity(0.1)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Image.asset(
-                    AppImage.wallet,
-                    height: 15.h,
-                    color: appColor,
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    walletBalance,
-                    style: TextStyle(fontSize: 14.sp, color: appColor),
-                  ),
-                  Text(
-                    'ريال',
-                    style: TextStyle(fontSize: 13.sp, color: appColor),
-                  ),
-                ],
-              ),
-            )),
+        InkWell(
+          onTap: () {
+            Get.to(() => const AddWaletBalnce());
+          },
+          child: Container(
+              height: 32.h,
+              width: 110.w,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: appColor.withOpacity(0.1)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Image.asset(
+                      AppImage.wallet,
+                      height: 15.h,
+                      color: appColor,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      '$waletBalance.00',
+                      style: TextStyle(fontSize: 14.sp, color: appColor),
+                    ),
+                    Text(
+                      'ريال',
+                      style: TextStyle(fontSize: 13.sp, color: appColor),
+                    ),
+                  ],
+                ),
+              )),
+        ),
       ],
     );
   }

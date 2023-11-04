@@ -54,7 +54,9 @@ class Login extends StatelessWidget {
                   change: (value) {
                     userController
                         .getSpecificUserByPhone('+966${phoneController.text}');
-                    print(userController.specificUser.value.email);
+                    print(phoneController.text);
+                    print(userController.specificUser.value.email.toString() +
+                        'email');
                     return null;
                   },
                   lable: 'رقم الهاتف',

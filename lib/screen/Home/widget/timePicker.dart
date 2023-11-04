@@ -2,6 +2,7 @@ import 'package:brush/constant/app_image.dart';
 import 'package:brush/controller/order_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class TimePickerHorizentialy extends StatefulWidget {
@@ -36,11 +37,18 @@ class _TimePickerHorizentialyState extends State<TimePickerHorizentialy> {
                   padding: EdgeInsets.symmetric(horizontal: 0.w),
                   child: InkWell(
                     onTap: () {
-                      setState(() {
-                        _selectedItemIndex = index;
-                        orderController.timeIdex.value = index;
-                        orderController.update();
-                      });
+                      if (index == 1 ||
+                          index == 2 ||
+                          index == 6 ||
+                          index == 8) {
+                        Fluttertoast.showToast(msg: ' غير متاح الان');
+                      } else {
+                        setState(() {
+                          _selectedItemIndex = index;
+                          orderController.timeIdex.value = index;
+                          orderController.update();
+                        });
+                      }
                     },
                     child: Container(
                         width: 33.h,

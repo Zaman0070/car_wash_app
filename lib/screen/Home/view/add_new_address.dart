@@ -149,6 +149,7 @@ class _AddNewAddressState extends State<AddNewAddress> {
                                   Future.delayed(const Duration(seconds: 2),
                                       () async {
                                     await firebaseServices.addLoaction(
+                                        cityName: controller.text,
                                         address: controller.text,
                                         addressType: addressType[index],
                                         addressDetails: '',

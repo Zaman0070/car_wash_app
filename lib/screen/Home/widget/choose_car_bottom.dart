@@ -139,6 +139,12 @@ class _ChooseCarBottomSheetsState extends State<ChooseCarBottomSheets> {
                     SizedBox(height: 10.h),
                     AppButton(
                         onTap: () {
+                          addCarController.addCarModel.value =
+                              widget.addCarModels.copyWith(
+                                  brand: widget.item[widget.selectedItemIndex],
+                                  brandIndex: widget.selectedItemIndex,
+                                  image:
+                                      widget.image[widget.selectedItemIndex]);
                           log(widget.addCarModels.toString());
                           log(addCarController.carIndex.value.toString());
                           Get.back();

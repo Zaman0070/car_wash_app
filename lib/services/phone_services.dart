@@ -16,7 +16,7 @@ class PhoneService {
   User? user = FirebaseAuth.instance.currentUser;
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   verificationPhoneNumber(
-      BuildContext context, number, name, password, image,lat,log,address) async {
+      BuildContext context, number, name, password, image,lat,log,address,cityName) async {
     SmartDialog.showLoading(
       animationBuilder: (controller, child, animationParam) {
         return Loading(text: '... تحميل');
@@ -34,6 +34,7 @@ class PhoneService {
     Future<void> codeSent(String verId, int? resendToken) async {
       SmartDialog.dismiss();
       await Get.to(() => OTP(
+        cityName:cityName ,
             number: number,
             verId: verId,
             password: password,

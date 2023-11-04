@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:brush/constant/app_image.dart';
 import 'package:brush/constant/widget/button.dart';
 import 'package:brush/constant/widget/logo.dart';
+import 'package:brush/model/loaction_Model.dart';
 import 'package:brush/screen/auth/widget/otp_input.dart';
 import 'package:brush/services/firebase_auth.dart';
 import 'package:brush/services/firebase_services.dart';
 import 'package:brush/services/phone_services.dart';
+import 'package:brush/services/share_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +22,7 @@ class OTP extends StatefulWidget {
   final String? latitude;
   final String? longitude;
   final String? address;
+  final String cityName;
   const OTP(
       {super.key,
       this.number,
@@ -29,7 +32,8 @@ class OTP extends StatefulWidget {
       this.image,
       this.latitude,
       this.longitude,
-      this.address});
+      this.address,
+      required this.cityName});
   @override
   State<OTP> createState() => _LoginPageState();
 }
@@ -50,6 +54,7 @@ class _LoginPageState extends State<OTP> {
 
   Future<void> phoneCredential(BuildContext context, String otp) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
+    MySharedPreferences sharedPreferences = MySharedPreferences();
     try {
       // SmartDialog.showLoading(
       //   animationBuilder: (controller, child, animationParam) {
@@ -67,19 +72,28 @@ class _LoginPageState extends State<OTP> {
       if (user != null) {
         FirebaseAuth.instance.currentUser!.delete().whenComplete(() async {
           await authServices.userRegister(
-            '${widget.number}@gmail.com',
-            widget.password,
-            context,
-            widget.image,
-            widget.name,
-            widget.number,
-          );
+              '${widget.number}@gmail.com',
+              widget.password,
+              context,
+              widget.image,
+              widget.name,
+              widget.number,
+              widget.cityName);
           await firebaseFirestore.addLoaction(
+              cityName: '',
               addressDetails: '',
               addressType: 'المنزل',
               latitude: widget.latitude!,
               longitude: widget.longitude!,
               address: widget.address!);
+          sharedPreferences.saveModelData(LocationModel(
+              address: widget.address,
+              latitude: widget.latitude,
+              longitude: widget.longitude,
+              cityName: widget.cityName,
+              addressDetails: '',
+              addressType: 'المنزل',
+              index: 0));
         });
 
         // SmartDialog.dismiss();
@@ -227,6 +241,7 @@ class _LoginPageState extends State<OTP> {
                                 phoneCredential(context, _otp)
                                     .whenComplete(() async {
                                   await firebaseFirestore.addLoaction(
+                                      cityName: '',
                                       addressDetails: '',
                                       addressType: 'المنزل',
                                       latitude: widget.latitude!,
@@ -261,7 +276,8 @@ class _LoginPageState extends State<OTP> {
                         widget.image,
                         widget.latitude,
                         widget.latitude,
-                        widget.address);
+                        widget.address,
+                        widget.cityName);
                   },
                   child: Container(
                     width: double.infinity,

@@ -12,16 +12,17 @@ class InputTextField extends StatelessWidget {
   TextInputType keyboardType;
   final Color color;
   String lable;
-  InputTextField(
-      {super.key,
-      required this.controller,
-      required this.hintText,
-      required this.lable,
-      required this.obSecure,
-      this.change,
-      required this.color,
-      this.validator,
-      required this.keyboardType});
+  InputTextField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.lable,
+    required this.obSecure,
+    this.change,
+    required this.color,
+    this.validator,
+    required this.keyboardType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +90,8 @@ class PhoneInputTextField extends StatelessWidget {
       required this.color,
       this.validator,
       required this.keyboardType,
-      required this.code});
+      required this.code,
+    });
 
   @override
   Widget build(BuildContext context) {

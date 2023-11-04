@@ -8,6 +8,7 @@ class LocationModel {
   String? addressType;
   String? addressDetails;
   String? uid;
+  String? cityName;
   int? index;
   LocationModel({
     this.latitude,
@@ -16,6 +17,7 @@ class LocationModel {
     this.addressType,
     this.addressDetails,
     this.uid,
+    this.cityName,
     this.index,
   });
 
@@ -26,6 +28,7 @@ class LocationModel {
     String? addressType,
     String? addressDetails,
     String? uid,
+    String? cityName,
     int? index,
   }) {
     return LocationModel(
@@ -35,6 +38,7 @@ class LocationModel {
       addressType: addressType ?? this.addressType,
       addressDetails: addressDetails ?? this.addressDetails,
       uid: uid ?? this.uid,
+      cityName: cityName ?? this.cityName,
       index: index ?? this.index,
     );
   }
@@ -47,6 +51,7 @@ class LocationModel {
       'addressType': addressType,
       'addressDetails': addressDetails,
       'uid': uid,
+      'cityName': cityName,
       'index': index,
     };
   }
@@ -59,6 +64,7 @@ class LocationModel {
       addressType: map['addressType'] != null ? map['addressType'] as String : null,
       addressDetails: map['addressDetails'] != null ? map['addressDetails'] as String : null,
       uid: map['uid'] != null ? map['uid'] as String : null,
+      cityName: map['cityName'] != null ? map['cityName'] as String : null,
       index: map['index'] != null ? map['index'] as int : null,
     );
   }
@@ -69,7 +75,7 @@ class LocationModel {
 
   @override
   String toString() {
-    return 'LocationModel(latitude: $latitude, longitude: $longitude, address: $address, addressType: $addressType, addressDetails: $addressDetails, uid: $uid, index: $index)';
+    return 'LocationModel(latitude: $latitude, longitude: $longitude, address: $address, addressType: $addressType, addressDetails: $addressDetails, uid: $uid, cityName: $cityName, index: $index)';
   }
 
   @override
@@ -83,6 +89,7 @@ class LocationModel {
       other.addressType == addressType &&
       other.addressDetails == addressDetails &&
       other.uid == uid &&
+      other.cityName == cityName &&
       other.index == index;
   }
 
@@ -94,6 +101,7 @@ class LocationModel {
       addressType.hashCode ^
       addressDetails.hashCode ^
       uid.hashCode ^
+      cityName.hashCode ^
       index.hashCode;
   }
 }

@@ -126,6 +126,7 @@ class FirebaseServices {
     required final String address,
     required final String addressType,
     required final String addressDetails,
+    required final String cityName,
   }) async {
     try {
       LocationModel locationModel = LocationModel(
@@ -135,6 +136,7 @@ class FirebaseServices {
           addressType: addressType,
           addressDetails: addressDetails,
           uid: FirebaseAuth.instance.currentUser!.uid,
+          cityName: cityName,
           index: 0);
       await location.doc().set(locationModel.toMap());
     } catch (e) {

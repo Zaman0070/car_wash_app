@@ -59,8 +59,8 @@ class UserController extends GetxController {
           .get();
       if (docSnapshot.docs.isNotEmpty) {
         specificUser.value = UserModel.fromMap(docSnapshot.docs.first.data());
+        update();
       }
-      update();
     } catch (e) {
       print('Error retrieving user data: $e');
     }

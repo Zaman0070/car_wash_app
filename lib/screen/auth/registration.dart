@@ -41,6 +41,7 @@ class _RegistrationState extends State<Registration> {
   PhoneService service = PhoneService();
 
   String? currentAddress;
+  String cityName = '';
   String? latitude;
   String? longitude;
   Position? currentPosition;
@@ -84,12 +85,13 @@ class _RegistrationState extends State<Registration> {
     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) async {
       await placemarkFromCoordinates(position.latitude, position.longitude,
-                localeIdentifier: 'ar_AR')
+              localeIdentifier: 'ar_AR')
           .then((List<Placemark> placemarks) {
         Placemark place = placemarks[0];
         setState(() {
           currentAddress =
               '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.locality} , ${place.country}';
+          cityName = place.locality!;
           log(currentAddress.toString());
         });
       });
@@ -330,7 +332,8 @@ class _RegistrationState extends State<Registration> {
                                     images[0],
                                     latitude,
                                     longitude,
-                                    currentAddress);
+                                    currentAddress,cityName
+                                  );
                           }
                         },
                         text: 'انشاء حساب',

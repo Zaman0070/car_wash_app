@@ -19,6 +19,22 @@ class OrderController extends GetxController {
     getCarData();
     super.onInit();
   }
+  // add image
+
+  void addImage(dynamic image) {
+    images.add(image);
+    update();
+  }
+
+  void addItem(dynamic item) {
+    items.add(item);
+    update();
+  }
+
+  void addCardModel(AddCarModels addCarModels) {
+    addCarModelsList.add(addCarModels);
+    update();
+  }
 
   getCarData() async {
     // addCarModelsList.clear();
